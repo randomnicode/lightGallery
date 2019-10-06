@@ -148,7 +148,9 @@
     
                 video = '<iframe class="lg-video-object lg-vk ' + addClass + '" width="560" height="315" src="//vk.com/video_ext.php?' + isVideo.vk[1] + a + '" frameborder="0" allowfullscreen></iframe>';
     
-            }
+            } else if (isVideo.html5src) {
+				video = '<video controls style="width:100%;height:100%;"><source src="' + isVideo.html5src[1] + '" />Your browser does not support HTML5 video.</video>';
+			}
     
             return video;
         };

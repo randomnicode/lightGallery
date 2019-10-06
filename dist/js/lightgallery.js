@@ -443,25 +443,33 @@
                 return false;
             }
         }
-
+		
+		var html5src = src.match(/((.*\.(?:mp4|webm|av1))(?:#.*|\?.*)?)/i);
+		if (html5src) {
+			return {
+				html5src: html5src
+			};
+		}
         var youtube = src.match(/\/\/(?:www\.)?youtu(?:\.be|be\.com|be-nocookie\.com)\/(?:watch\?v=|embed\/)?([a-z0-9\-\_\%]+)/i);
-        var vimeo = src.match(/\/\/(?:www\.)?vimeo.com\/([0-9a-z\-_]+)/i);
-        var dailymotion = src.match(/\/\/(?:www\.)?dai.ly\/([0-9a-z\-_]+)/i);
-        var vk = src.match(/\/\/(?:www\.)?(?:vk\.com|vkontakte\.ru)\/(?:video_ext\.php\?)(.*)/i);
-
-        if (youtube) {
+		if (youtube) {
             return {
                 youtube: youtube
             };
-        } else if (vimeo) {
+        }
+        var vimeo = src.match(/\/\/(?:www\.)?vimeo.com\/([0-9a-z\-_]+)/i);
+		if (vimeo) {
             return {
                 vimeo: vimeo
             };
-        } else if (dailymotion) {
+        }
+        var dailymotion = src.match(/\/\/(?:www\.)?dai.ly\/([0-9a-z\-_]+)/i);
+		if (dailymotion) {
             return {
                 dailymotion: dailymotion
             };
-        } else if (vk) {
+        }
+        var vk = src.match(/\/\/(?:www\.)?(?:vk\.com|vkontakte\.ru)\/(?:video_ext\.php\?)(.*)/i);
+		if (vk) {
             return {
                 vk: vk
             };
