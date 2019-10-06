@@ -190,7 +190,7 @@
 			} else {
 				var thumbtype = thumbSrcLoc || guessMediaType(thumb);
 				if (thumbtype == 'video') {
-					thumbhtml='<video><source src="' + thumb + '" /></video>';
+					thumbhtml='<video loop muted><source src="' + thumb + '" /></video>';
 				} else if (thumbtype == 'image') {
 					thumbhtml='<img src="' + thumb + '" />';
 				}
