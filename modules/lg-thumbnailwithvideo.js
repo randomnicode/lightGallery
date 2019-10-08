@@ -175,7 +175,7 @@
 			}
 		}
 
-        function getThumb(src, thumb, index, thumbSrcLoc) {
+        function getThumb(src, index, thumb) {
             var isVideo = _this.core.isVideo(src, index) || {};
             var thumbhtml = '';
             var vimeoId = '';
@@ -188,12 +188,15 @@
 			} else if (isVideo.dailymotion && _this.core.s.loadDailymotionThumbnail) {
 				thumbhtml='<img src="//www.dailymotion.com/thumbnail/video/' + isVideo.dailymotion[1] + '" />';
 			} else {
-				var thumbtype = thumbSrcLoc || guessMediaType(thumb);
-				if (thumbtype == 'video') {
-					thumbhtml='<video loop muted><source src="' + thumb + '" /></video>';
-				} else if (thumbtype == 'image') {
-					thumbhtml='<img src="' + thumb + '" />';
-				}
+				thumb.forEach(t => {
+					var thumbtype = t[0] || guessMediaType(t[1]); //either given or guess from source
+					var thumbclass = t[2] ? 'class="' + t[2] + '"' : '';
+					if (thumbtype == 'video' && t[1]) {
+						thumbhtml+='<video loop muted ' + thumbclass + '><source src="' + t[1] + '" /></video>';
+					} else if (thumbtype == 'image' && t[1]) {
+						thumbhtml+='<img src="' + t[1] + '" ' + thumbclass + '/>';
+					}
+				});
 			}
 
             thumbList += '<div ' + vimeoId + ' class="lg-thumb-item" style="width:' + _this.core.s.thumbWidth + 'px; height: ' + _this.core.s.thumbHeight + '; margin-right: ' + _this.core.s.thumbMargin + 'px">' + thumbhtml + '</div>';
@@ -201,26 +204,27 @@
 
         if (_this.core.s.dynamic) {
             for (var i = 0; i < _this.core.s.dynamicEl.length; i++) {
-                getThumb(_this.core.s.dynamicEl[i].src, _this.core.s.dynamicEl[i].thumb, i, undefined);
+                getThumb(_this.core.s.dynamicEl[i].src, i, [[null, _this.core.s.dynamicEl[i].thumb, null]]);
             }
         } else {
             _this.core.$items.each(function(i) {
 
                 if (!_this.core.s.exThumbImage) {
-					var thumbtagsrc = $(this).find('img').attr('src');
+					
+					var thumbtagsrc = $(this).find('source').attr('src');
 					var thumbtagtype;
 					if (typeof(thumbtagsrc) != 'undefined') {
-						thumbtagtype = 'image';
+						thumbtagtype = 'video';
 					} else {
-						thumbtagsrc = $(this).find('source').attr('src');
+						thumbtagsrc = $(this).find('img').attr('src');
 						if (typeof(thumbtagsrc) != 'undefined') {
-							thumbtagtype = 'video';
+							thumbtagtype = 'image';
 						}
 					}
 					
-                    getThumb($(this).attr('href') || $(this).attr('data-src'), thumbtagsrc, i, thumbtagtype);
+                    getThumb($(this).attr('href') || $(this).attr('data-src'), i, [['video', $(this).find('source').attr('src'), $(this).find('video').attr('class')], ['image', $(this).find('img').attr('src'), $(this).find('img').attr('class')]]);
                 } else {
-                    getThumb($(this).attr('href') || $(this).attr('data-src'), $(this).attr(_this.core.s.exThumbImage), i, undefined);
+                    getThumb($(this).attr('href') || $(this).attr('data-src'), i, [[null, $(this).attr(_this.core.s.exThumbImage),null]]);
                 }
 
             });
@@ -263,14 +267,20 @@
                 }
             }, 50);
         });
-		$thumb.on('mouseenter touchstart', 'video', function(evt) {
+		$thumb.on('mouseenter touchstart', function(evt) {
             setTimeout(function() {
-				evt.target.play();
+				var vid = evt.delegateTarget.getElementsByTagName('video')[0]
+				if (typeof vid != 'undefined') {
+					vid.play();
+				}
             }, 5);
         });
-		$thumb.on('mouseleave touchend touchcancel', 'video', function(evt) {
+		$thumb.on('mouseleave touchend touchcancel', function(evt) {
             setTimeout(function() {
-				evt.target.pause();
+				var vid = evt.delegateTarget.getElementsByTagName('video')[0]
+				if (typeof vid != 'undefined') {
+					vid.pause();
+				}
             }, 5);
         });
 
